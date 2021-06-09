@@ -155,6 +155,7 @@ class ResBlock(nn.Module):
         super().__init__()
         channel_dim = int(dim * mlp_ratio)
         self.norm1 = norm_layer(dim)
+        self.seq_len = seq_len
         self.linear_tokens = nn.Linear(seq_len, seq_len)
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
@@ -260,9 +261,10 @@ class MlpMixer(nn.Module):
             norm_layer=norm_layer if stem_norm else None)
         self.embedding = nn.Embedding(num_embeddings=self.config.vocab_size, embedding_dim=hidden_dim, padding_idx=1)
         # FIXME drop_path (stochastic depth scaling rule or all the same?)
+        self.seq_len = 84
         self.blocks = nn.Sequential(*[
             block_layer(
-                hidden_dim, seq_len=104, mlp_ratio=mlp_ratio, mlp_layer=mlp_layer, norm_layer=norm_layer,
+                hidden_dim, seq_len=self.seq_len, mlp_ratio=mlp_ratio, mlp_layer=mlp_layer, norm_layer=norm_layer,
                 act_layer=act_layer, drop=drop_rate, drop_path=drop_path_rate)
             for _ in range(num_blocks)])
         self.norm = norm_layer(hidden_dim)
@@ -291,6 +293,7 @@ class MlpMixer(nn.Module):
         :param output_hidden_states:
         :return:
         """
+        input_ids = input_ids[:, :self.seq_len]
         print("input ids:", input_ids.shape)
         print("toekn type ids: ", token_type_ids.shape)
         print("attention mask: ", attention_mask.shape)

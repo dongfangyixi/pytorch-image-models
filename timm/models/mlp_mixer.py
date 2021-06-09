@@ -115,7 +115,9 @@ class MixerBlock(nn.Module):
             self, dim, seq_len, mlp_ratio=(0.5, 4.0), mlp_layer=Mlp,
             norm_layer=partial(nn.LayerNorm, eps=1e-6), act_layer=nn.GELU, drop=0., drop_path=0.):
         super().__init__()
-        tokens_dim, channels_dim = [int(x * dim) for x in to_2tuple(mlp_ratio)]
+        tokens_dim = seq_len
+        channels_dim = dim
+        # tokens_dim, channels_dim = [int(x * dim) for x in to_2tuple(mlp_ratio)]
         self.norm1 = norm_layer(dim)
         self.mlp_tokens = mlp_layer(seq_len, tokens_dim, act_layer=act_layer, drop=drop)
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
@@ -123,8 +125,11 @@ class MixerBlock(nn.Module):
         self.mlp_channels = mlp_layer(dim, channels_dim, act_layer=act_layer, drop=drop)
 
     def forward(self, x):
+        print("x in mixer block input: ", x.shape)
         x = x + self.drop_path(self.mlp_tokens(self.norm1(x).transpose(1, 2)).transpose(1, 2))
+        print("x in mixer block after token mlp: ", x.shape)
         x = x + self.drop_path(self.mlp_channels(self.norm2(x)))
+        print("x in mixer after channel mixer: ", x.shape)
         return x
 
 

@@ -238,6 +238,7 @@ class MlpMixer(nn.Module):
         self.stem = PatchEmbed(
             img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=hidden_dim,
             norm_layer=norm_layer if stem_norm else None)
+        self.embedding = nn.Embedding(num_embeddings=self.config.vocab_size, embedding_dim=hidden_dim, padding_idx=1)
         # FIXME drop_path (stochastic depth scaling rule or all the same?)
         self.blocks = nn.Sequential(*[
             block_layer(
@@ -274,6 +275,9 @@ class MlpMixer(nn.Module):
         print("toekn type ids: ", token_type_ids.shape)
         print("attention mask: ", attention_mask.shape)
         print("output hidden states: ", output_hidden_states)
+        input_feature = self.embedding(input_ids)
+        print("input feature: ", input_feature.shape)
+
 
 
 

@@ -207,6 +207,7 @@ class Config:
         """
         self.hidden_size = hidden_size
         self.hidden_dropout_prob = hidden_dropout_prob
+        self.vocab_size = 50264
 
 
 class MlpMixer(nn.Module):

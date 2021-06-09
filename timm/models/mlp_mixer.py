@@ -174,8 +174,10 @@ class SpatialGatingUnit(nn.Module):
         self.proj = nn.Linear(seq_len, seq_len)
 
     def forward(self, x):
+        print('x in sgu: ', x.shape)
         u, v = x.chunk(2, dim=-1)
         v = self.norm(v)
+        print("v in sgu: ", v.shape)
         v = self.proj(v.transpose(-1, -2))
         return u * v.transpose(-1, -2)
 

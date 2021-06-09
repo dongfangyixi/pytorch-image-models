@@ -253,14 +253,28 @@ class MlpMixer(nn.Module):
         head_bias = -math.log(self.num_classes) if nlhb else 0.
         for n, m in self.named_modules():
             _init_weights(m, n, head_bias=head_bias)
+    #
+    # def forward(self, x):
+    #     x = self.stem(x)
+    #     x = self.blocks(x)
+    #     x = self.norm(x)
+    #     x = x.mean(dim=1)
+    #     x = self.head(x)
+    #     return x
+    def forward(self, input_ids, token_type_ids, attention_mask, output_hidden_states):
+        """
 
-    def forward(self, x):
-        x = self.stem(x)
-        x = self.blocks(x)
-        x = self.norm(x)
-        x = x.mean(dim=1)
-        x = self.head(x)
-        return x
+        :param input_ids:
+        :param token_type_ids:
+        :param attention_mask:
+        :param output_hidden_states:
+        :return:
+        """
+        print("input ids:", input_ids.shape)
+        print("toekn type ids: ", token_type_ids.shape)
+        print("attention mask: ", attention_mask.shape)
+        print("output hidden states: ", output_hidden_states)
+
 
 
 def _init_weights(m, n: str, head_bias: float = 0.):

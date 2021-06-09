@@ -48,6 +48,7 @@ from timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from .helpers import build_model_with_cfg, overlay_external_default_cfg
 from .layers import PatchEmbed, Mlp, GluMlp, GatedMlp, DropPath, lecun_normal_, to_2tuple
 from .registry import register_model
+from jiant.proj.main.modeling.primary import JiantTransformersModel, JiantTransformersModelFactory, JiantRobertaModel
 
 
 def _cfg(url='', **kwargs):
@@ -248,6 +249,9 @@ class MlpMixer(nn.Module):
         x = x.mean(dim=1)
         x = self.head(x)
         return x
+
+    def get_hidden_size(self):
+
 
 
 def _init_weights(m, n: str, head_bias: float = 0.):
@@ -474,4 +478,5 @@ def gmlp_b16_224(pretrained=False, **kwargs):
         patch_size=16, num_blocks=30, hidden_dim=512, mlp_ratio=6, block_layer=SpatialGatingBlock,
         mlp_layer=GatedMlp, **kwargs)
     model = _create_mixer('gmlp_b16_224', pretrained=pretrained, **model_args)
-    return model
+    m = JiantRobertaModel(model)
+    return m

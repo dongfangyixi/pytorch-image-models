@@ -201,11 +201,12 @@ class SpatialGatingBlock(nn.Module):
 
 
 class Config:
-    def __init__(self, hidden_size):
+    def __init__(self, hidden_size, hidden_dropout_prob):
         """
         init
         """
         self.hidden_size = hidden_size
+        self.hidden_dropout_prob = hidden_dropout_prob
 
 
 class MlpMixer(nn.Module):
@@ -230,7 +231,8 @@ class MlpMixer(nn.Module):
     ):
         super().__init__()
         self.num_classes = num_classes
-        self.config = Config(hidden_size=hidden_dim)
+        self.config = Config(hidden_size=hidden_dim,
+                             hidden_dropout_prob=drop_rate)
         self.stem = PatchEmbed(
             img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=hidden_dim,
             norm_layer=norm_layer if stem_norm else None)

@@ -302,7 +302,7 @@ class MlpMixer(nn.Module):
         print("h: ", h.shape)
         x = h.mean(dim=1)
         print("mean x: ", x.shape)
-        x = self.head(x)
+        # x = self.head(x)
         print("predict y: ", x.shape)
         o = Output(pooler_output=x, last_hidden_state=x, hidden_states=h)
         return o

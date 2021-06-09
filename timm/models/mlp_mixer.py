@@ -287,6 +287,10 @@ class MlpMixer(nn.Module):
 
         h = self.blocks(input_feature)
         print("h: ", h.shape)
+        x = h.mean(dim=1)
+        print("mean x: ", x.shape)
+        x = self.head(x)
+        print("predict y: ", x.shape)
 
 
 def _init_weights(m, n: str, head_bias: float = 0.):

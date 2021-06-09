@@ -126,11 +126,11 @@ class MixerBlock(nn.Module):
         self.mlp_channels = mlp_layer(dim, channels_dim, act_layer=act_layer, drop=drop)
 
     def forward(self, x):
-        print("x in mixer block input: ", x.shape)
+        # print("x in mixer block input: ", x.shape)
         x = x + self.drop_path(self.mlp_tokens(self.norm1(x).transpose(1, 2)).transpose(1, 2))
-        print("x in mixer block after token mlp: ", x.shape)
+        # print("x in mixer block after token mlp: ", x.shape)
         x = x + self.drop_path(self.mlp_channels(self.norm2(x)))
-        print("x in mixer after channel mixer: ", x.shape)
+        # print("x in mixer after channel mixer: ", x.shape)
         return x
 
 
@@ -181,10 +181,10 @@ class SpatialGatingUnit(nn.Module):
         self.proj = nn.Linear(seq_len, seq_len)
 
     def forward(self, x):
-        print('x in sgu: ', x.shape)
+        # print('x in sgu: ', x.shape)
         u, v = x.chunk(2, dim=-1)
         v = self.norm(v)
-        print("v in sgu: ", v.shape)
+        # print("v in sgu: ", v.shape)
         v = self.proj(v.transpose(-1, -2))
         return u * v.transpose(-1, -2)
 
@@ -294,19 +294,19 @@ class MlpMixer(nn.Module):
         :return:
         """
         input_ids = input_ids[:, :self.seq_len]
-        print("input ids:", input_ids.shape)
-        print("toekn type ids: ", token_type_ids.shape)
-        print("attention mask: ", attention_mask.shape)
-        print("output hidden states: ", output_hidden_states)
+        # print("input ids:", input_ids.shape)
+        # print("toekn type ids: ", token_type_ids.shape)
+        # print("attention mask: ", attention_mask.shape)
+        # print("output hidden states: ", output_hidden_states)
         input_feature = self.embedding(input_ids)
-        print("input feature: ", input_feature.shape)
+        # print("input feature: ", input_feature.shape)
 
         h = self.blocks(input_feature)
-        print("h: ", h.shape)
+        # print("h: ", h.shape)
         x = h.mean(dim=1)
-        print("mean x: ", x.shape)
+        # print("mean x: ", x.shape)
         # x = self.head(x)
-        print("predict y: ", x.shape)
+        # print("predict y: ", x.shape)
         o = Output(pooler_output=x, last_hidden_state=x, hidden_states=h)
         return o
 

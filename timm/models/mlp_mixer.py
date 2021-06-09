@@ -250,9 +250,6 @@ class MlpMixer(nn.Module):
         x = self.head(x)
         return x
 
-    def get_hidden_size(self):
-
-
 
 def _init_weights(m, n: str, head_bias: float = 0.):
     """ Mixer weight initialization (trying to match Flax defaults)

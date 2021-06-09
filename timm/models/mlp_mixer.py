@@ -48,7 +48,8 @@ from timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from .helpers import build_model_with_cfg, overlay_external_default_cfg
 from .layers import PatchEmbed, Mlp, GluMlp, GatedMlp, DropPath, lecun_normal_, to_2tuple
 from .registry import register_model
-from jiant.proj.main.modeling.primary import JiantTransformersModel, JiantTransformersModelFactory, JiantRobertaModel
+from jiant.proj.main.modeling.primary import JiantTransformersModel, JiantTransformersModelFactory, \
+    JiantRobertaModel, JiantModelOutput
 
 
 def _cfg(url='', **kwargs):
@@ -217,6 +218,18 @@ class Config:
         self.vocab_size = 50264
         self.model_type = "roberta"
 
+class Output:
+    def __init__(self, pooler_output, last_hidden_state, hidden_states):
+        """
+
+        :param pooler_output:
+        :param last_hidden_state:
+        :param hidden_states:
+        """
+        self.pooler_output = pooler_output
+        self.last_hidden_state = last_hidden_state
+        self.hidden_states = hidden_states
+
 
 class MlpMixer(nn.Module):
 
@@ -291,7 +304,8 @@ class MlpMixer(nn.Module):
         print("mean x: ", x.shape)
         x = self.head(x)
         print("predict y: ", x.shape)
-
+        o = Output(pooler_output=x, last_hidden_state=x, hidden_states=h)
+        return o
 
 def _init_weights(m, n: str, head_bias: float = 0.):
     """ Mixer weight initialization (trying to match Flax defaults)

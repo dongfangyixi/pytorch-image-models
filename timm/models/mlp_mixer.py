@@ -200,6 +200,14 @@ class SpatialGatingBlock(nn.Module):
         return x
 
 
+class Config:
+    def __init__(self, hidden_size):
+        """
+        init
+        """
+        self.hidden_size = hidden_size
+
+
 class MlpMixer(nn.Module):
 
     def __init__(
@@ -222,7 +230,7 @@ class MlpMixer(nn.Module):
     ):
         super().__init__()
         self.num_classes = num_classes
-
+        self.config = Config(hidden_size=hidden_dim)
         self.stem = PatchEmbed(
             img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=hidden_dim,
             norm_layer=norm_layer if stem_norm else None)

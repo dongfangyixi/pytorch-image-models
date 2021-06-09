@@ -278,7 +278,8 @@ class MlpMixer(nn.Module):
         input_feature = self.embedding(input_ids)
         print("input feature: ", input_feature.shape)
 
-
+        h = self.blocks(input_feature)
+        print("h: ", h.shape)
 
 
 def _init_weights(m, n: str, head_bias: float = 0.):

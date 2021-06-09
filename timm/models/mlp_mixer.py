@@ -244,7 +244,7 @@ class MlpMixer(nn.Module):
         # FIXME drop_path (stochastic depth scaling rule or all the same?)
         self.blocks = nn.Sequential(*[
             block_layer(
-                hidden_dim, self.stem.num_patches, mlp_ratio, mlp_layer=mlp_layer, norm_layer=norm_layer,
+                hidden_dim, seq_len=104, mlp_ratio=mlp_ratio, mlp_layer=mlp_layer, norm_layer=norm_layer,
                 act_layer=act_layer, drop=drop_rate, drop_path=drop_path_rate)
             for _ in range(num_blocks)])
         self.norm = norm_layer(hidden_dim)
@@ -505,7 +505,7 @@ def gmlp_b16_224(pretrained=False, **kwargs):
     Paper: `Pay Attention to MLPs` - https://arxiv.org/abs/2105.08050
     """
     model_args = dict(
-        patch_size=16, num_blocks=30, hidden_dim=512, mlp_ratio=6, block_layer=SpatialGatingBlock,
+        patch_size=16, num_blocks=30, hidden_dim=512, mlp_ratio=1, block_layer=SpatialGatingBlock,
         mlp_layer=GatedMlp, **kwargs)
     model = _create_mixer('gmlp_b16_224', pretrained=pretrained, **model_args)
     m = JiantRobertaModel(model)

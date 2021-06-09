@@ -416,7 +416,9 @@ def mixer_l16_224(pretrained=False, **kwargs):
     """
     model_args = dict(patch_size=16, num_blocks=24, hidden_dim=1024, **kwargs)
     model = _create_mixer('mixer_l16_224', pretrained=pretrained, **model_args)
-    return model
+    m = JiantRobertaModel(model)
+    return m
+    # return model
 
 
 @register_model

@@ -137,7 +137,7 @@ class MixerBlock(nn.Module):
         channels_dim = dim
         # tokens_dim, channels_dim = [int(x * dim) for x in to_2tuple(mlp_ratio)]
 
-        self.pos_emb = nn.Parameter(torch.randn(seq_len, dim))
+        self.position_embedding = nn.Parameter(torch.randn(seq_len, dim))
         self.pos_merge = nn.Linear(in_features=dim*2, out_features=dim)
         self.norm1 = norm_layer(dim)
         self.mlp_tokens = mlp_layer(seq_len, tokens_dim, act_layer=act_layer, drop=drop)

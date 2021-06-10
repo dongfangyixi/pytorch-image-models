@@ -141,7 +141,7 @@ class MixerBlock(nn.Module):
         self.pos_merge = nn.Linear(in_features=dim*2, out_features=dim)
         self.norm1 = norm_layer(dim)
         self.mlp_tokens = mlp_layer(seq_len, tokens_dim, act_layer=act_layer, drop=drop)
-        # self.mlp_tokens_fft = FFT(seq_len)
+        self.mlp_tokens_fft = FFT(seq_len)
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         self.mlp_channels = mlp_layer(dim, channels_dim, act_layer=act_layer, drop=drop)
@@ -152,7 +152,7 @@ class MixerBlock(nn.Module):
         batch_size = x.shape[0]
         position_feature = torch.tile(torch.unsqueeze(self.position_embedding, 0), dims=[batch_size, 1, 1])
         x = self.pos_merge(torch.cat([x, position_feature], dim=-1))
-        x = x + self.drop_path(self.mlp_tokens(self.norm1(x).transpose(1, 2)).transpose(1, 2))
+        x = x + self.drop_path(self.mlp_tokens_fft(self.norm1(x).transpose(1, 2)).transpose(1, 2))
         # print("x in mixer block after token mlp: ", x.shape)
         x = x + self.drop_path(self.mlp_channels(self.norm2(x)))
         # print("x in mixer after channel mixer: ", x.shape)

@@ -111,7 +111,7 @@ default_cfgs = dict(
 class FFT(nn.Module):
     def __init__(self, seq_len):
         super().__init__()
-        self.w = nn.Linear(seq_len, 1).weight  #196 is the sequence length
+        self.w = nn.Linear(1, seq_len).weight  #196 is the sequence length
 
     def forward(self, x):
         B, N, C = x.shape

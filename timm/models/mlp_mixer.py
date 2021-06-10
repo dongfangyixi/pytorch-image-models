@@ -260,6 +260,8 @@ class MlpMixer(nn.Module):
             img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=hidden_dim,
             norm_layer=norm_layer if stem_norm else None)
         self.embedding = nn.Embedding(num_embeddings=self.config.vocab_size, embedding_dim=hidden_dim, padding_idx=1)
+        self.type_embedding = nn.Embedding(num_embeddings=self.config.vocab_size, embedding_dim=hidden_dim, padding_idx=1)
+        self.merge_linear = nn.Linear(in_features=hidden_dim * 2, out_features=hidden_dim)
         # FIXME drop_path (stochastic depth scaling rule or all the same?)
         self.seq_len = 84
         self.blocks = nn.Sequential(*[
@@ -295,13 +297,15 @@ class MlpMixer(nn.Module):
         """
         input_ids = input_ids[:, :self.seq_len]
         # print("input ids:", input_ids.shape)
-        # print("toekn type ids: ", token_type_ids.shape)
+        print("toekn type ids: ", token_type_ids.shape)
         # print("attention mask: ", attention_mask.shape)
         # print("output hidden states: ", output_hidden_states)
         input_feature = self.embedding(input_ids)
+        token_feature = self.type_embedding(token_type_ids)
+        feature = torch.cat([input_feature, token_feature], dim=-1)
         # print("input feature: ", input_feature.shape)
 
-        h = self.blocks(input_feature)
+        h = self.blocks(feature)
         # print("h: ", h.shape)
         x = h.mean(dim=1)
         # print("mean x: ", x.shape)

@@ -150,8 +150,8 @@ class MixerBlock(nn.Module):
     def forward(self, x):
         # print("x in mixer block input: ", x.shape)
         batch_size = x.shape[0]
-        position_feature = torch.tile(torch.unsqueeze(self.position_embedding, 0), dims=[batch_size, 1, 1])
-        x = self.pos_merge(torch.cat([x, position_feature], dim=-1))
+        # position_feature = torch.tile(torch.unsqueeze(self.position_embedding, 0), dims=[batch_size, 1, 1])
+        # x = self.pos_merge(torch.cat([x, position_feature], dim=-1))
         x = x + self.drop_path(self.mlp_tokens(self.norm1(x).transpose(1, 2)).transpose(1, 2))
         # print("x in mixer block after token mlp: ", x.shape)
         x = x + self.drop_path(self.mlp_channels(self.norm2(x)))

@@ -303,7 +303,8 @@ class MlpMixer(nn.Module):
         input_feature = self.embedding(input_ids)
         token_feature = self.type_embedding(token_type_ids)
         feature = torch.cat([input_feature, token_feature], dim=-1)
-        # print("input feature: ", input_feature.shape)
+        feature = self.merge_linear(feature)
+        # print("input feature: ", feature.shape)
 
         h = self.blocks(feature)
         # print("h: ", h.shape)

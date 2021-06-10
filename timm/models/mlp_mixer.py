@@ -119,14 +119,21 @@ class MixerBlock(nn.Module):
         tokens_dim = seq_len
         channels_dim = dim
         # tokens_dim, channels_dim = [int(x * dim) for x in to_2tuple(mlp_ratio)]
+
+        self.pos_emb = nn.Parameter(torch.randn(seq_len, dim))
+        self.pos_merge = nn.Linear(in_features=dim*2, out_features=dim)
         self.norm1 = norm_layer(dim)
         self.mlp_tokens = mlp_layer(seq_len, tokens_dim, act_layer=act_layer, drop=drop)
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         self.mlp_channels = mlp_layer(dim, channels_dim, act_layer=act_layer, drop=drop)
 
+
     def forward(self, x):
         # print("x in mixer block input: ", x.shape)
+        batch_size = x.shape[0]
+        position_feature = torch.tile(torch.unsqueeze(self.position_embedding, 0), dims=[batch_size, 1, 1])
+        x = self.pos_merge(torch.cat([x, position_feature], dim=-1))
         x = x + self.drop_path(self.mlp_tokens(self.norm1(x).transpose(1, 2)).transpose(1, 2))
         # print("x in mixer block after token mlp: ", x.shape)
         x = x + self.drop_path(self.mlp_channels(self.norm2(x)))
@@ -261,11 +268,11 @@ class MlpMixer(nn.Module):
             norm_layer=norm_layer if stem_norm else None)
         self.embedding = nn.Embedding(num_embeddings=self.config.vocab_size, embedding_dim=hidden_dim, padding_idx=1)
         self.type_embedding = nn.Embedding(num_embeddings=self.config.vocab_size, embedding_dim=hidden_dim, padding_idx=1)
-        self.merge_linear = nn.Linear(in_features=hidden_dim * 3, out_features=hidden_dim)
+        self.merge_linear = nn.Linear(in_features=hidden_dim * 2, out_features=hidden_dim)
         # FIXME drop_path (stochastic depth scaling rule or all the same?)
         self.seq_len = 84
-        self.scale = 0.1
-        self.position_embedding = nn.Parameter(torch.randn(self.seq_len, hidden_dim) * self.scale)
+        self.scale = 1.0
+        # self.position_embedding = nn.Parameter(torch.randn(self.seq_len, hidden_dim) * self.scale)
 
         self.blocks = nn.Sequential(*[
             block_layer(
@@ -301,14 +308,14 @@ class MlpMixer(nn.Module):
         batch_size = input_ids.shape[0]
         input_ids = input_ids[:, :self.seq_len]
         # print("input ids:", input_ids.shape)
-        print("toekn type ids: ", token_type_ids.shape)
+        # print("toekn type ids: ", token_type_ids.shape)
         # print("attention mask: ", attention_mask.shape)
         # print("output hidden states: ", output_hidden_states)
         input_feature = self.embedding(input_ids)
         token_feature = self.type_embedding(token_type_ids)
-        position_feature = torch.tile(torch.unsqueeze(self.position_embedding, 0), dims=[batch_size, 1, 1])
-        print("pos f: ", position_feature.shape)
-        feature = torch.cat([input_feature, token_feature, position_feature], dim=-1)
+        # position_feature = torch.tile(torch.unsqueeze(self.position_embedding, 0), dims=[batch_size, 1, 1])
+        # print("pos f: ", position_feature.shape)
+        feature = torch.cat([input_feature, token_feature], dim=-1)
         feature = self.merge_linear(feature)
 
         # print("input feature: ", feature.shape)

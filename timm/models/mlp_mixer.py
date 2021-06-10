@@ -108,6 +108,23 @@ default_cfgs = dict(
 )
 
 
+class FFT(nn.Module):
+    def __init__(self, seq_len):
+        super().__init__()
+        self.w = nn.Linear(seq_len, 1).weight  #196 is the sequence length
+
+    def forward(self, x):
+        B, N, C = x.shape
+        x = x.permute(0, 2, 1).contiguous()
+        x = torch.fft.ifft(x)
+        w = self.w.unsqueeze(0).expand(B, C, N)
+        xw = x.mul(w)
+        xw = torch.fft.fft(xw).real
+        x = xw.permute(0, 2, 1).contiguous()
+        x = x.view(B, N, C)
+        return x
+
+
 class MixerBlock(nn.Module):
     """ Residual Block w/ token mixing and channel MLPs
     Based on: 'MLP-Mixer: An all-MLP Architecture for Vision' - https://arxiv.org/abs/2105.01601
@@ -124,6 +141,7 @@ class MixerBlock(nn.Module):
         self.pos_merge = nn.Linear(in_features=dim*2, out_features=dim)
         self.norm1 = norm_layer(dim)
         self.mlp_tokens = mlp_layer(seq_len, tokens_dim, act_layer=act_layer, drop=drop)
+        # self.mlp_tokens_fft = FFT(seq_len)
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         self.mlp_channels = mlp_layer(dim, channels_dim, act_layer=act_layer, drop=drop)
